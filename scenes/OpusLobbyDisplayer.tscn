@@ -1,0 +1,350 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://addons/adrenesis.opusLobby/fonts/Hack_Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://addons/adrenesis.opusLobby/icons/iconEX.png" type="Texture" id=2]
+[ext_resource path="res://addons/adrenesis.opusLobby/icons/iconVoip.png" type="Texture" id=3]
+[ext_resource path="res://addons/adrenesis.opusLobby/scripts/OpusLobbyDisplayer.gd" type="Script" id=4]
+[ext_resource path="res://addons/adrenesis.opusLobby/scripts/TextChat.gd" type="Script" id=5]
+[ext_resource path="res://addons/adrenesis.opusLobby/icons/iconGlow.png" type="Texture" id=6]
+[ext_resource path="res://addons/adrenesis.opusLobby/scenes/EditorAudioBusesMini.tscn" type="PackedScene" id=7]
+[ext_resource path="res://addons/adrenesis.opusLobby/scenes/EditorAudioBuses.tscn" type="PackedScene" id=8]
+
+[sub_resource type="DynamicFont" id=1]
+size = 15
+extra_spacing_top = -1
+extra_spacing_bottom = -1
+font_data = ExtResource( 1 )
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Button
+
+func _pressed():
+	OS.shell_open(\"https://github.com/casbrugman/godot-voip-demo\")
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Button
+
+func _pressed():
+	OS.shell_open(\"https://github.com/Godot-Opus/libopus-gdnative-voip-demo\")
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Button
+
+func _pressed():
+	OS.shell_open(\"https://github.com/Adrenesis/libopus-gdnative-voip-demo\")
+"
+
+[node name="OpusLobbyDisplayer" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerSettingsColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+margin_left = 4.0
+margin_top = 2.0
+margin_right = 214.0
+margin_bottom = 334.0
+mouse_filter = 2
+color = Color( 0.180392, 0.219608, 0.321569, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerSettingsContainer" type="VBoxContainer" parent="."]
+margin_left = 12.0
+margin_top = 7.0
+margin_right = 207.0
+margin_bottom = 329.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NicknameContainer" type="HBoxContainer" parent="ServerSettingsContainer"]
+margin_right = 195.0
+margin_bottom = 24.0
+
+[node name="NicknameLabel" type="Label" parent="ServerSettingsContainer/NicknameContainer"]
+margin_top = 5.0
+margin_right = 68.0
+margin_bottom = 19.0
+text = "Nickname:"
+
+[node name="NicknameLineEdit" type="LineEdit" parent="ServerSettingsContainer/NicknameContainer"]
+margin_left = 72.0
+margin_right = 195.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "Player"
+align = 2
+caret_blink = true
+
+[node name="PortContainer" type="HBoxContainer" parent="ServerSettingsContainer"]
+margin_top = 28.0
+margin_right = 195.0
+margin_bottom = 52.0
+
+[node name="PortLabel" type="Label" parent="ServerSettingsContainer/PortContainer"]
+margin_top = 5.0
+margin_right = 30.0
+margin_bottom = 19.0
+text = "Port:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PortLineEdit" type="LineEdit" parent="ServerSettingsContainer/PortContainer"]
+margin_left = 34.0
+margin_right = 195.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "3000"
+align = 2
+caret_blink = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerButtonContainer" type="HBoxContainer" parent="ServerSettingsContainer"]
+margin_top = 56.0
+margin_right = 195.0
+margin_bottom = 86.0
+
+[node name="ButtonServer" type="Button" parent="ServerSettingsContainer/ServerButtonContainer"]
+margin_right = 95.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 0, 30 )
+size_flags_horizontal = 3
+text = "Start server"
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="ButtonStopServer" type="Button" parent="ServerSettingsContainer/ServerButtonContainer"]
+margin_left = 99.0
+margin_right = 195.0
+margin_bottom = 30.0
+rect_min_size = Vector2( 0, 30 )
+size_flags_horizontal = 3
+disabled = true
+text = "Stop server"
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="IPContainer" type="HBoxContainer" parent="ServerSettingsContainer"]
+margin_top = 90.0
+margin_right = 195.0
+margin_bottom = 114.0
+
+[node name="IPLabel" type="Label" parent="ServerSettingsContainer/IPContainer"]
+margin_top = 5.0
+margin_right = 29.0
+margin_bottom = 19.0
+text = "IP:   "
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IPLineEdit" type="LineEdit" parent="ServerSettingsContainer/IPContainer"]
+margin_left = 33.0
+margin_right = 195.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "127.0.0.1"
+align = 2
+caret_blink = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ClientButtonContainer" type="HBoxContainer" parent="ServerSettingsContainer"]
+margin_top = 118.0
+margin_right = 195.0
+margin_bottom = 149.0
+
+[node name="ButtonClient" type="Button" parent="ServerSettingsContainer/ClientButtonContainer"]
+margin_right = 95.0
+margin_bottom = 31.0
+rect_min_size = Vector2( 0, 31 )
+size_flags_horizontal = 3
+text = "Connect"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ButtonStopClient" type="Button" parent="ServerSettingsContainer/ClientButtonContainer"]
+margin_left = 99.0
+margin_right = 195.0
+margin_bottom = 31.0
+rect_min_size = Vector2( 0, 31 )
+size_flags_horizontal = 3
+disabled = true
+text = "Disconnect"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StatusContainer" type="HBoxContainer" parent="ServerSettingsContainer"]
+margin_top = 153.0
+margin_right = 195.0
+margin_bottom = 173.0
+
+[node name="StatusLabel" type="Label" parent="ServerSettingsContainer/StatusContainer"]
+margin_right = 63.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 0, 20 )
+custom_fonts/font = SubResource( 1 )
+text = "Status:"
+
+[node name="Status" type="Label" parent="ServerSettingsContainer/StatusContainer"]
+margin_left = 67.0
+margin_right = 175.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 0, 20 )
+custom_fonts/font = SubResource( 1 )
+text = "Not Started."
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="Control" type="Control" parent="ServerSettingsContainer"]
+margin_top = 177.0
+margin_right = 195.0
+margin_bottom = 287.0
+rect_min_size = Vector2( 0, 110 )
+
+[node name="ButtonVoice" type="Button" parent="ServerSettingsContainer"]
+margin_top = 291.0
+margin_right = 195.0
+margin_bottom = 322.0
+rect_min_size = Vector2( 0, 31 )
+disabled = true
+text = "Speak"
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="VOIPButton" type="Button" parent="."]
+margin_left = 13.0
+margin_top = 232.0
+margin_right = 72.0
+margin_bottom = 292.0
+script = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="icon2" type="Sprite" parent="."]
+position = Vector2( 42.0412, 260.737 )
+scale = Vector2( 0.916286, 0.916286 )
+skew = 4.37114e-08
+texture = ExtResource( 3 )
+
+[node name="OpusButton" type="Button" parent="."]
+margin_left = 68.0
+margin_top = 207.0
+margin_right = 138.0
+margin_bottom = 273.0
+script = SubResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="icon" type="Sprite" parent="."]
+position = Vector2( 102.304, 242.936 )
+scale = Vector2( 0.976479, 0.976479 )
+skew = 4.37114e-08
+texture = ExtResource( 6 )
+
+[node name="OpusLobby" type="Button" parent="."]
+margin_left = 130.0
+margin_top = 176.0
+margin_right = 207.0
+margin_bottom = 254.0
+script = SubResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="icon3" type="Sprite" parent="."]
+position = Vector2( 170.342, 213.632 )
+scale = Vector2( 1.09215, 1.09215 )
+skew = 4.37114e-08
+texture = ExtResource( 2 )
+
+[node name="LoggerColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+margin_left = 219.0
+margin_top = 2.0
+margin_right = 890.0
+margin_bottom = 334.0
+mouse_filter = 2
+color = Color( 0.180392, 0.219608, 0.321569, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LoggerContainer" type="VBoxContainer" parent="."]
+margin_left = 224.0
+margin_top = 5.0
+margin_right = 883.0
+margin_bottom = 338.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LogLabel" type="Label" parent="LoggerContainer"]
+margin_right = 659.0
+margin_bottom = 14.0
+text = "Log:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="LoggerContainer"]
+margin_top = 18.0
+margin_right = 659.0
+margin_bottom = 295.0
+rect_min_size = Vector2( 0, 277 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Log" type="Label" parent="LoggerContainer/ScrollContainer"]
+margin_bottom = 14.0
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MessageField" type="LineEdit" parent="LoggerContainer"]
+margin_top = 299.0
+margin_right = 659.0
+margin_bottom = 323.0
+caret_blink = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EditorAudioBuses" parent="." instance=ExtResource( 8 )]
+margin_left = 4.0
+margin_top = 337.0
+margin_right = 4.0
+margin_bottom = -8.0
+rect_min_size = Vector2( 1024, 250 )
+
+[node name="EditorAudioBusesMini" parent="." instance=ExtResource( 7 )]
+margin_left = 894.0
+margin_top = 4.0
+margin_right = 1.0
+margin_bottom = 23.0
+rect_min_size = Vector2( 125, 600 )

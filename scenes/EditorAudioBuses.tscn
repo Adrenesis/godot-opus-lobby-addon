@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/adrenesis.opusLobby/scripts/EditorAudioBuses.gd" type="Script" id=1]
+
+
+[node name="EditorAudioBuses" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 4.0
+margin_right = 2.0
+margin_bottom = -252.0
+rect_min_size = Vector2( 1024, 0 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 16.0
+margin_bottom = 8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -7.0
+margin_bottom = 11.0
+mouse_filter = 2
+color = Color( 0.14902, 0.172549, 0.231373, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
