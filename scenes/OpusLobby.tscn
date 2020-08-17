@@ -6,18 +6,20 @@
 [ext_resource path="res://addons/adrenesis.opusLobby/scripts/OpusLobby.gd" type="Script" id=4]
 [ext_resource path="res://addons/adrenesis.opusLobby/scripts/voip.gd" type="Script" id=5]
 
-
-
-
 [sub_resource type="AudioStreamSample" id=1]
 
 [sub_resource type="AudioStreamMicrophone" id=2]
 
 [node name="OpusLobby" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+enable_hotkeys = true
 
 [node name="OpusLobbyDisplayer" parent="." instance=ExtResource( 1 )]
 
@@ -28,6 +30,7 @@ script = ExtResource( 5 )
 [node name="Input" type="AudioStreamPlayer" parent="."]
 stream = SubResource( 2 )
 autoplay = true
+stream_paused = true
 bus = "Record"
 
 [node name="OpusEncoder" type="Node" parent="."]

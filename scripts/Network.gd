@@ -8,27 +8,30 @@ signal server_disconnected
 signal server_started
 signal server_stopped
 signal server_failed
-signal player_connected
+signal player_connected(id, nickname)
 signal player_disconnected
 signal client_failed
 signal nickname_changed
 signal players_name_updated
 signal audio_buses_changed
+signal online_started
+#signal online_ended
+
 
 const OpusLobby = preload("res://addons/adrenesis.opusLobby/scenes/OpusLobby.tscn")
-var serverPort : int = 3000 
-var maxPlayers : int = 20 
-var serverIp : String = "127.0.0.1" 
+var serverPort : int = 8910
+var maxPlayers : int = 20
+var serverIp : String = "127.0.0.1"
 var nickname : String = "Player"
 var lastId : int 
 
 onready var output : AudioStreamPlayer
-# array of network ids (int)
-var player_list = []
-# network_id (int) => player nickname (string)
-var players_nickname = Dictionary()
-# network_id (int) => player streamPlayer (AudioStreamPlayer)
-var player_stream = Dictionary()
+# Array of network ids (int), in arbitrary order
+var players_ids := Array()
+# Network id (int) => player nickname (String)
+var players_nickname := Dictionary()
+# Network id (int) => player streamPlayer (AudioStreamPlayer)
+var player_stream := Dictionary()
 
 var peer : NetworkedMultiplayerENet = null
 
@@ -80,7 +83,7 @@ func stop_server():
 	emit_signal("server_stopped")
 
 func start_server():
-	player_list.push_back(1)
+	players_ids.push_back(1)
 	players_nickname[1] = nickname
 
 	peer = NetworkedMultiplayerENet.new()
@@ -105,8 +108,19 @@ func _create_audio_bus_and_stream_player(name : String):
 	output.add_child(audioStreamPlayer)
 	emit_signal("audio_buses_changed")
 
-func get_net_id():
+
+func get_net_id():  # deprecated
 	return get_tree().get_network_unique_id()
+
+
+func get_my_id():
+	print("My network id is `%s'." % get_tree().get_network_unique_id())
+	return get_tree().get_network_unique_id()
+
+
+func is_online():  # is_connected() exists already, for signals
+	return get_tree().has_network_peer()
+
 
 func is_server(_id = null):
 	if _id:
@@ -114,8 +128,14 @@ func is_server(_id = null):
 	else:
 		return get_net_id() == 1
 
+
+func is_this_peer(network_id):
+	return network_id == get_my_id()
+
+
 func is_this_instance(_id):
-	return _id == get_net_id()
+	return is_this_peer(_id)
+
 
 func check_and_reformulate_nickname(_originalNickname, _nickname, i = 0):
 	if players_nickname.values().find(_nickname) != -1:
@@ -135,17 +155,17 @@ remote func reset_names(_players_nickname):
 
 # Used to sync client's players' lists
 # called when client connect in the middle of an active lobby
-remote func set_players(_player_list, _players_nickname):
+remote func set_players(_players_ids, _players_nickname):
 	# CLIENT SIDE
 	players_nickname = _players_nickname
-	for player in _player_list:
+	for player in _players_ids:
 		print("updating players")
 		_add_player(player, false)
 
 remote func _add_player(_id, confirm = true):
 	# BOTH CLIENT AND SERVER
-	if player_list.find(_id) == -1:
-		player_list.push_back(_id)
+	if players_ids.find(_id) == -1:
+		players_ids.push_back(_id)
 		print("adding" + str(_id))
 		if not is_this_instance(_id) and confirm:
 			# REMOTELY ASK FOR NICKNAME (SHOULD BE SERVER ONLY?)
@@ -182,6 +202,7 @@ remote func confirm_nickname(_id, _nickname, _caller_id):
 	emit_signal("nickname_changed", nickname)
 	rpc_id(_caller_id, "confirm_connection", _id, _nickname)
 
+
 remote func confirm_connection(_id, _nickname):
 	# BOTH CLIENT AND SERVER
 	emit_signal("player_connected", _id, _nickname)
@@ -193,13 +214,18 @@ remote func confirm_connection(_id, _nickname):
 	# REGISTER NICKNAME
 	players_nickname[_id] = _nickname
 	_create_audio_bus_and_stream_player("Player" + str(_id))
+	# Careful, nicknames may not be set yet
+	emit_signal("online_started")
+
 
 func _player_connecting(_id):
 	if is_server():
 		rpc("_add_player", _id)
 		_add_player(_id)
-		rpc_id(_id, "set_players", player_list, players_nickname)
+		rpc_id(_id, "set_players", players_ids, players_nickname)
 
+
+# Move to signal listener
 func _destroy_bus_and_audio_stream_player(name : String):
 #	print("destroying " + name)
 	AudioServer.remove_bus(AudioServer.get_bus_index(name))
@@ -208,25 +234,27 @@ func _destroy_bus_and_audio_stream_player(name : String):
 	player_stream[name] = null
 	emit_signal("audio_buses_changed")
 
-puppet func _remove_player(_id, source_id):
+
+remote func _remove_player(_id, source_id):
 #	print(_id)
 	if _id != source_id:
 		emit_signal("player_disconnected", _id, players_nickname[_id])
 		_destroy_bus_and_audio_stream_player("Player" + str(_id))
-		player_list.remove((player_list.find(_id)))
+		players_ids.remove((players_ids.find(_id)))
 		players_nickname.erase(_id)
 #		players_nickname.erase(_id)
 
+
 func remove_players():
-	print(player_list)
-	for player_index in range(player_list.size()):
-		var player = player_list[player_index]
+#	print(players_ids)
+	for player_index in range(players_ids.size()):
+		var player = players_ids[player_index]
 		if player != lastId:
 			emit_signal("player_disconnected", player, players_nickname[player])
 			_destroy_bus_and_audio_stream_player("Player" + str(player))
-	player_list = []
+	players_ids = []
 	players_nickname = Dictionary()
-		
+
 
 func _player_disconnecting(_id):
 	emit_signal("player_disconnected", _id, players_nickname[_id])

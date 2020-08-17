@@ -1,6 +1,10 @@
 extends Control
 
 var lobbyHolder : Control
+var buttonShowServerSettings : Button
+var buttonShowAdvancedPanelSettings : Button
+var buttonShowOverlay : Button
+var buttonShowLogger : Button
 var buttonServer : Control
 var buttonClient : Control
 var buttonStopServer : Button
@@ -13,6 +17,7 @@ var logger : Control
 var overlay : Control
 var advancedPanel : Control
 var nicknameField : LineEdit
+var messageField : LineEdit
 var portField : LineEdit
 var ipField : LineEdit
 
@@ -25,6 +30,10 @@ func _ready():
 	var serverSettingsContainer = get_node("ServerSettingsContainer")
 	statusNode = serverSettingsContainer.get_node("StatusContainer/Status")
 	buttonVoice = serverSettingsContainer.get_node("ButtonVoice")
+	buttonShowServerSettings = get_node("ShowServerSettings")
+	buttonShowAdvancedPanelSettings = get_node("ShowAdvancedPanelSettings")
+	buttonShowOverlay = get_node("ShowOverlay")
+	buttonShowLogger = get_node("ShowLogger")
 	portField = serverSettingsContainer.get_node('PortContainer/PortLineEdit')
 	ipField = serverSettingsContainer.get_node('IPContainer/IPLineEdit')
 	nicknameField = serverSettingsContainer.get_node('NicknameContainer/NicknameLineEdit')
@@ -35,12 +44,21 @@ func _ready():
 	advancedPanel = get_node('EditorAudioBuses')
 	overlay = get_node('EditorAudioBusesMini')
 	logger = get_node("LoggerContainer/ScrollContainer/Log")
+	messageField = get_node("LoggerContainer/MessageField")
 	logger.text = get_parent().loggerLog
 	logger.opusLobby = lobbyHolder
 	lobbyHolder.displayer = self
 	lobbyHolder.logger = logger
 	lobbyHolder.statusNode = statusNode
 	var error
+	if not buttonShowServerSettings.is_connected("toggled", self, "_on_button_show_server_settings_toggled"):
+		error = buttonShowServerSettings.connect("toggled", self, "_on_button_show_server_settings_toggled")
+	if not buttonShowAdvancedPanelSettings.is_connected("toggled", self, "_on_button_show_advanced_panel_settings_toggled"):
+		error = buttonShowAdvancedPanelSettings.connect("toggled", self, "_on_button_show_advanced_panel_settings_toggled")
+	if not buttonShowOverlay.is_connected("toggled", self, "_on_button_show_overlay_toggled"):
+		error = buttonShowOverlay.connect("toggled", self, "_on_button_show_overlay_toggled")
+	if not buttonShowLogger.is_connected("toggled", self, "_on_button_show_logger_toggled"):
+		error = buttonShowLogger.connect("toggled", self, "_on_button_show_logger_toggled")
 	if not buttonServer.is_connected("pressed", self, "_on_button_server_pressed"):
 		error = buttonServer.connect("pressed", self, "_on_button_server_pressed")
 	if not buttonClient.is_connected("pressed", self, "_on_button_client_pressed"):
@@ -134,6 +152,104 @@ func _queue_free():
 	get_parent().displayer = null
 	get_parent().logger = null
 	get_parent().statusNode = null
+
+func check_action_to_press_button(event : InputEvent, action : String, button : Button, keySum : int):
+	if not InputMap.has_action(action):
+		if event.get_scancode_with_modifiers() == keySum and event.pressed:
+			button.pressed = not button.pressed
+	else:
+		if Input.is_action_just_pressed(action):
+			button.pressed = not button.pressed
+
+func escape_pressed():
+	if get_focus_owner():
+		if get_focus_owner() is LineEdit:
+			get_focus_owner().deselect()
+		get_focus_owner().release_focus()
+
+func _unhandled_key_input(event):
+	if get_parent().enable_hotkeys:
+		check_action_to_press_button(
+			event, "ui_opus_lobby_show_logger", 
+			buttonShowLogger, KEY_Y)
+		check_action_to_press_button(
+			event, "ui_opus_lobby_show_overlay", 
+			buttonShowOverlay, KEY_O)
+		check_action_to_press_button(
+			event, "ui_opus_lobby_show_advanced_panel_settings", 
+			buttonShowAdvancedPanelSettings, KEY_MASK_SHIFT + KEY_O)
+		check_action_to_press_button(
+			event, "ui_opus_lobby_show_server_settings", 
+			buttonShowServerSettings, KEY_U)
+	if not InputMap.has_action("ui_opus_lobby_escape"):
+		if event.get_scancode_with_modifiers() == KEY_ESCAPE and event.pressed:
+			escape_pressed()
+	elif Input.is_action_just_pressed("ui_opus_lobby_escape"):
+		escape_pressed()
+	if event.get_scancode_with_modifiers() == KEY_ENTER and event.pressed:
+		if get_focus_owner() == null and buttonShowLogger.pressed:
+			messageField.grab_focus()
+	
+
+func toggle_window(pressed : bool, player : AnimationPlayer):
+	if pressed:
+		player.play("show")
+	else:
+		player.play("hide")
+
+func make_unfocusable_recursively(control : Control):
+	if control.get("focus_mode") != null:
+		control.focus_mode = Control.FOCUS_NONE
+	for child in control.get_children():
+		if child is Control:
+			make_unfocusable_recursively(child)
+
+func make_focusable_recursively(control : Control):
+	if control is Button or control is LineEdit:
+		control.set_focus_mode(Control.FOCUS_ALL)
+	for child in control.get_children():
+		if child is Control:
+			make_focusable_recursively(child)
+
+func _on_button_show_server_settings_toggled(pressed : bool):
+	var player = buttonShowServerSettings.get_node("AnimationPlayer")
+	toggle_window(pressed, player)
+	if pressed:
+		
+		make_focusable_recursively(get_node("ServerSettingsColorRect"))
+		make_focusable_recursively(get_node("ServerSettingsContainer"))
+		nicknameField.grab_focus()
+	else:
+		make_unfocusable_recursively(get_node("ServerSettingsColorRect"))
+		make_unfocusable_recursively(get_node("ServerSettingsContainer"))
+		if self.is_a_parent_of(get_focus_owner()):
+			get_focus_owner().release_focus()
+			
+
+func _on_button_show_advanced_panel_settings_toggled(pressed : bool):
+	var player = buttonShowAdvancedPanelSettings.get_node("AnimationPlayer")
+	print("hello")
+	toggle_window(pressed, player)
+
+func _on_button_show_overlay_toggled(pressed : bool):
+	var player = buttonShowOverlay.get_node("AnimationPlayer")
+	toggle_window(pressed, player)
+
+
+func _on_button_show_logger_toggled(pressed : bool):
+	var player = buttonShowLogger.get_node("AnimationPlayer")
+	toggle_window(pressed, player)
+	if pressed:
+		make_focusable_recursively(get_node("LoggerContainer"))
+		make_focusable_recursively(get_node("LoggerColorRect"))
+		messageField.grab_focus()
+		messageField.select()
+		
+	else:
+		messageField.deselect()
+		make_unfocusable_recursively(get_node("LoggerContainer"))
+		make_unfocusable_recursively(get_node("LoggerColorRect"))
+	
 
 func disable_server_settings(type = "server"):
 	portField.editable = false

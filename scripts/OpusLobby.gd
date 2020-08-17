@@ -1,5 +1,6 @@
 extends Node
 const OpusLobbyDisplayer = preload("res://addons/adrenesis.opusLobby/scenes/OpusLobbyDisplayer.tscn")
+export (bool) var enable_hotkeys
 var remove_display : bool = false
 var display_removed : bool = false
 var loggerLog : String = ""
@@ -29,6 +30,21 @@ func _process(delta):
 	if not remove_display and display_removed:
 		add_child(OpusLobbyDisplayer.instance())
 		display_removed = false
+
+func _input(event):
+	if event is InputEventKey:
+		if not InputMap.has_action("ui_opus_lobby_push_to_talk"):
+			if event.get_scancode_with_modifiers() == KEY_V:
+				if event.pressed:
+					$Output.recording = true
+				else:
+					$Output.recording = false
+		else:
+			if Input.is_action_just_pressed("ui_opus_lobby_push_to_talk"):
+				if event.pressed:
+					$Output.recording = true
+				else:
+					$Output.recording = false
 
 func send_to_logger(message):
 	if logger:
@@ -63,14 +79,14 @@ func _on_connection_failed():
 	update_status("Error.")
 	status = STATUS_DISCONNECTED
 	if displayer:
-		displayer.enable_server_settings()
+		displayer.enable_server_settings("client")
 
 func _on_server_disconnected():
 	send_to_logger("Server disconnected.")
 	update_status("Disconnected")
 	status = STATUS_DISCONNECTED
 	if displayer:
-		displayer.enable_server_settings()
+		displayer.enable_server_settings("client")
 
 func _on_server_failed():
 	send_to_logger("Failed to create server!")

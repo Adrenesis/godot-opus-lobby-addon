@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://addons/adrenesis.opusLobby/fonts/Hack_Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://addons/adrenesis.opusLobby/icons/iconEX.png" type="Texture" id=2]
@@ -9,58 +9,661 @@
 [ext_resource path="res://addons/adrenesis.opusLobby/scenes/EditorAudioBusesMini.tscn" type="PackedScene" id=7]
 [ext_resource path="res://addons/adrenesis.opusLobby/scenes/EditorAudioBuses.tscn" type="PackedScene" id=8]
 
-[sub_resource type="DynamicFont" id=1]
-size = 15
-extra_spacing_top = -1
-extra_spacing_bottom = -1
-font_data = ExtResource( 1 )
-
-[sub_resource type="GDScript" id=2]
+[sub_resource type="GDScript" id=1]
 script/source = "extends Button
 
 func _pressed():
 	OS.shell_open(\"https://github.com/casbrugman/godot-voip-demo\")
 "
 
-[sub_resource type="GDScript" id=3]
+[sub_resource type="GDScript" id=2]
 script/source = "extends Button
 
 func _pressed():
 	OS.shell_open(\"https://github.com/Godot-Opus/libopus-gdnative-voip-demo\")
 "
 
-[sub_resource type="GDScript" id=4]
+[sub_resource type="GDScript" id=3]
 script/source = "extends Button
 
 func _pressed():
 	OS.shell_open(\"https://github.com/Adrenesis/libopus-gdnative-voip-demo\")
 "
 
+[sub_resource type="DynamicFont" id=4]
+size = 15
+extra_spacing_top = -1
+extra_spacing_bottom = -1
+font_data = ExtResource( 1 )
+
+[sub_resource type="Animation" id=5]
+resource_name = "hide"
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:margin_top")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -340.0, -22.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:margin_bottom")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -318.0, 0.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../ServerSettingsColorRect:margin_top")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -315.0, 0.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("../ServerSettingsColorRect:margin_bottom")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -3.0, 312.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("../ServerSettingsContainer:margin_top")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -303.0, 0.0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("../ServerSettingsContainer:margin_bottom")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -3.0, 300.0 ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "show"
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:margin_top")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -22.0, -340.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:margin_bottom")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -318.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../ServerSettingsColorRect:margin_top")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -315.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("../ServerSettingsColorRect:margin_bottom")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 312.0, -3.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("../ServerSettingsContainer:margin_top")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -303.0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("../ServerSettingsContainer:margin_bottom")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 300.0, -3.0 ]
+}
+
+[sub_resource type="Animation" id=7]
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath("../LoggerColorRect:margin_top")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -315.0, 0.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../LoggerColorRect:margin_bottom")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -3.0, 315.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../LoggerContainer:margin_top")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -311.0, 0.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("../LoggerContainer:margin_bottom")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -7.0, 315.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath(".:margin_top")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -340.0, -26.0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath(".:margin_bottom")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -317.0, -3.0 ]
+}
+
+[sub_resource type="Animation" id=8]
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath("../LoggerColorRect:margin_top")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -315.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../LoggerColorRect:margin_bottom")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 315.0, -3.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../LoggerContainer:margin_top")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -311.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("../LoggerContainer:margin_bottom")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 315.0, -7.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath(".:margin_top")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -26.0, -340.0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath(".:margin_bottom")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -3.0, -317.0 ]
+}
+
+[sub_resource type="Animation" id=9]
+resource_name = "hide"
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath("../EditorAudioBusesMini:margin_left")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -133.0, 0.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../EditorAudioBusesMini:margin_right")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 1.0, 113.0 ]
+}
+
+[sub_resource type="Animation" id=10]
+resource_name = "show"
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath("../EditorAudioBusesMini:margin_left")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -133.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../EditorAudioBusesMini:margin_right")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 113.0, 1.0 ]
+}
+
+[sub_resource type="Animation" id=11]
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath("../EditorAudioBuses:margin_left")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -1022.0, 0.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../EditorAudioBuses:margin_right")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 4.0, 900.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath(".:margin_left")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -1019.0, -242.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath(".:margin_right")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -908.0, -133.0 ]
+}
+
+[sub_resource type="Animation" id=12]
+length = 0.12
+step = 0.06
+tracks/0/type = "value"
+tracks/0/path = NodePath("../EditorAudioBuses:margin_left")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, -1022.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../EditorAudioBuses:margin_right")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 900.0, 4.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath(".:margin_left")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -242.0, -1019.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath(".:margin_right")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.12 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ -133.0, -908.0 ]
+}
+
 [node name="OpusLobbyDisplayer" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ServerSettingsColorRect" type="ColorRect" parent="."]
+[node name="LoggerColorRect" type="ColorRect" parent="."]
 show_behind_parent = true
+anchor_top = 1.0
+anchor_bottom = 1.0
 margin_left = 4.0
-margin_top = 2.0
-margin_right = 214.0
-margin_bottom = 334.0
+margin_right = 675.0
+margin_bottom = 315.0
 mouse_filter = 2
 color = Color( 0.180392, 0.219608, 0.321569, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="LoggerContainer" type="VBoxContainer" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_right = 668.0
+margin_bottom = 315.0
+grow_vertical = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LogLabel" type="Label" parent="LoggerContainer"]
+margin_right = 658.0
+margin_bottom = 14.0
+text = "Log:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="LoggerContainer"]
+margin_top = 18.0
+margin_right = 658.0
+margin_bottom = 287.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Log" type="Label" parent="LoggerContainer/ScrollContainer"]
+margin_bottom = 14.0
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MessageField" type="LineEdit" parent="LoggerContainer"]
+margin_top = 291.0
+margin_right = 658.0
+margin_bottom = 315.0
+focus_next = NodePath("../../ShowServerSettings")
+size_flags_vertical = 8
+caret_blink = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerSettingsColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -346.0
+margin_right = -136.0
+margin_bottom = 312.0
+rect_min_size = Vector2( 210, 312 )
+mouse_filter = 2
+color = Color( 0.180392, 0.219608, 0.321569, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VOIPButton" type="Button" parent="ServerSettingsColorRect"]
+margin_left = 9.0
+margin_top = 199.0
+margin_right = 68.0
+margin_bottom = 259.0
+focus_previous = NodePath("../../ServerSettingsContainer/ClientButtonContainer/ButtonStopClient")
+focus_mode = 0
+script = SubResource( 1 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="icon2" type="Sprite" parent="ServerSettingsColorRect"]
+position = Vector2( 38.041, 228.628 )
+scale = Vector2( 0.916286, 0.944127 )
+skew = 4.37114e-08
+texture = ExtResource( 3 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="OpusButton" type="Button" parent="ServerSettingsColorRect"]
+margin_left = 64.0
+margin_top = 195.0
+margin_right = 134.0
+margin_bottom = 261.0
+focus_mode = 0
+script = SubResource( 2 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="icon" type="Sprite" parent="ServerSettingsColorRect"]
+position = Vector2( 98.304, 228.936 )
+scale = Vector2( 0.976479, 0.976479 )
+skew = 4.37114e-08
+texture = ExtResource( 6 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="OpusLobby" type="Button" parent="ServerSettingsColorRect"]
+margin_left = 128.0
+margin_top = 189.0
+margin_right = 205.0
+margin_bottom = 267.0
+focus_next = NodePath("../../ServerSettingsContainer/ButtonVoice")
+focus_mode = 0
+script = SubResource( 3 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="icon3" type="Sprite" parent="ServerSettingsColorRect"]
+position = Vector2( 166.342, 227.632 )
+scale = Vector2( 1.09215, 1.09215 )
+skew = 4.37114e-08
+texture = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="ServerSettingsContainer" type="VBoxContainer" parent="."]
-margin_left = 12.0
-margin_top = 7.0
-margin_right = 207.0
-margin_bottom = 329.0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -338.0
+margin_right = -143.0
+margin_bottom = 300.0
+rect_min_size = Vector2( 195, 300 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -79,6 +682,8 @@ text = "Nickname:"
 margin_left = 72.0
 margin_right = 195.0
 margin_bottom = 24.0
+focus_previous = NodePath("../../../ShowServerSettings")
+focus_mode = 0
 size_flags_horizontal = 3
 text = "Player"
 align = 2
@@ -102,6 +707,7 @@ __meta__ = {
 margin_left = 34.0
 margin_right = 195.0
 margin_bottom = 24.0
+focus_mode = 0
 size_flags_horizontal = 3
 text = "3000"
 align = 2
@@ -119,6 +725,7 @@ margin_bottom = 86.0
 margin_right = 95.0
 margin_bottom = 30.0
 rect_min_size = Vector2( 0, 30 )
+focus_mode = 0
 size_flags_horizontal = 3
 text = "Start server"
 __meta__ = {
@@ -131,6 +738,7 @@ margin_left = 99.0
 margin_right = 195.0
 margin_bottom = 30.0
 rect_min_size = Vector2( 0, 30 )
+focus_mode = 0
 size_flags_horizontal = 3
 disabled = true
 text = "Stop server"
@@ -156,6 +764,7 @@ __meta__ = {
 margin_left = 33.0
 margin_right = 195.0
 margin_bottom = 24.0
+focus_mode = 0
 size_flags_horizontal = 3
 text = "127.0.0.1"
 align = 2
@@ -173,6 +782,7 @@ margin_bottom = 149.0
 margin_right = 95.0
 margin_bottom = 31.0
 rect_min_size = Vector2( 0, 31 )
+focus_mode = 0
 size_flags_horizontal = 3
 text = "Connect"
 __meta__ = {
@@ -184,6 +794,8 @@ margin_left = 99.0
 margin_right = 195.0
 margin_bottom = 31.0
 rect_min_size = Vector2( 0, 31 )
+focus_next = NodePath("../../../ServerSettingsColorRect/VOIPButton")
+focus_mode = 0
 size_flags_horizontal = 3
 disabled = true
 text = "Disconnect"
@@ -200,7 +812,7 @@ margin_bottom = 173.0
 margin_right = 63.0
 margin_bottom = 20.0
 rect_min_size = Vector2( 0, 20 )
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 4 )
 text = "Status:"
 
 [node name="Status" type="Label" parent="ServerSettingsContainer/StatusContainer"]
@@ -208,7 +820,7 @@ margin_left = 67.0
 margin_right = 175.0
 margin_bottom = 20.0
 rect_min_size = Vector2( 0, 20 )
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 4 )
 text = "Not Started."
 __meta__ = {
 "_edit_use_anchors_": false,
@@ -218,14 +830,16 @@ __meta__ = {
 [node name="Control" type="Control" parent="ServerSettingsContainer"]
 margin_top = 177.0
 margin_right = 195.0
-margin_bottom = 287.0
-rect_min_size = Vector2( 0, 110 )
+margin_bottom = 259.0
+rect_min_size = Vector2( 0, 82 )
 
 [node name="ButtonVoice" type="Button" parent="ServerSettingsContainer"]
-margin_top = 291.0
+margin_top = 263.0
 margin_right = 195.0
-margin_bottom = 322.0
+margin_bottom = 294.0
 rect_min_size = Vector2( 0, 31 )
+focus_previous = NodePath("../../ServerSettingsColorRect/OpusLobby")
+focus_mode = 0
 disabled = true
 text = "Speak"
 __meta__ = {
@@ -233,118 +847,88 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="VOIPButton" type="Button" parent="."]
-margin_left = 13.0
-margin_top = 232.0
-margin_right = 72.0
-margin_bottom = 292.0
-script = SubResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="icon2" type="Sprite" parent="."]
-position = Vector2( 42.0412, 260.737 )
-scale = Vector2( 0.916286, 0.916286 )
-skew = 4.37114e-08
-texture = ExtResource( 3 )
-
-[node name="OpusButton" type="Button" parent="."]
-margin_left = 68.0
-margin_top = 207.0
-margin_right = 138.0
-margin_bottom = 273.0
-script = SubResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="icon" type="Sprite" parent="."]
-position = Vector2( 102.304, 242.936 )
-scale = Vector2( 0.976479, 0.976479 )
-skew = 4.37114e-08
-texture = ExtResource( 6 )
-
-[node name="OpusLobby" type="Button" parent="."]
-margin_left = 130.0
-margin_top = 176.0
-margin_right = 207.0
-margin_bottom = 254.0
-script = SubResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="icon3" type="Sprite" parent="."]
-position = Vector2( 170.342, 213.632 )
-scale = Vector2( 1.09215, 1.09215 )
-skew = 4.37114e-08
-texture = ExtResource( 2 )
-
-[node name="LoggerColorRect" type="ColorRect" parent="."]
-show_behind_parent = true
-margin_left = 219.0
-margin_top = 2.0
-margin_right = 890.0
-margin_bottom = 334.0
-mouse_filter = 2
-color = Color( 0.180392, 0.219608, 0.321569, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="LoggerContainer" type="VBoxContainer" parent="."]
-margin_left = 224.0
-margin_top = 5.0
-margin_right = 883.0
-margin_bottom = 338.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="LogLabel" type="Label" parent="LoggerContainer"]
-margin_right = 659.0
-margin_bottom = 14.0
-text = "Log:"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="ScrollContainer" type="ScrollContainer" parent="LoggerContainer"]
-margin_top = 18.0
-margin_right = 659.0
-margin_bottom = 295.0
-rect_min_size = Vector2( 0, 277 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Log" type="Label" parent="LoggerContainer/ScrollContainer"]
-margin_bottom = 14.0
-script = ExtResource( 5 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="MessageField" type="LineEdit" parent="LoggerContainer"]
-margin_top = 299.0
-margin_right = 659.0
-margin_bottom = 323.0
-caret_blink = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="EditorAudioBuses" parent="." instance=ExtResource( 8 )]
-margin_left = 4.0
-margin_top = 337.0
-margin_right = 4.0
-margin_bottom = -8.0
-rect_min_size = Vector2( 1024, 250 )
+anchor_left = 1.0
+anchor_bottom = 0.0
+margin_left = 0.0
+margin_top = 24.0
+margin_right = 900.0
+margin_bottom = 257.0
+rect_min_size = Vector2( 0, 225 )
 
 [node name="EditorAudioBusesMini" parent="." instance=ExtResource( 7 )]
-margin_left = 894.0
-margin_top = 4.0
+anchor_left = 1.0
+margin_left = -133.0
+margin_top = 0.0
 margin_right = 1.0
-margin_bottom = 23.0
-rect_min_size = Vector2( 125, 600 )
+margin_bottom = -3.0
+rect_min_size = Vector2( 134, 0 )
+
+[node name="ShowServerSettings" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -345.0
+margin_top = -22.0
+margin_right = -240.0
+focus_next = NodePath("../ServerSettingsContainer/NicknameContainer/NicknameLabel")
+focus_previous = NodePath("../LoggerContainer/MessageField")
+toggle_mode = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ShowServerSettings"]
+anims/hide = SubResource( 5 )
+anims/show = SubResource( 6 )
+
+[node name="ShowLogger" type="Button" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = -26.0
+margin_right = 136.0
+margin_bottom = -3.0
+focus_next = NodePath("../LoggerContainer/MessageField")
+focus_previous = NodePath("../ShowOverlay")
+toggle_mode = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ShowLogger"]
+autoplay = "hide"
+anims/hide = SubResource( 7 )
+anims/show = SubResource( 8 )
+
+[node name="ShowOverlay" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -128.0
+margin_right = -3.0
+margin_bottom = 21.0
+toggle_mode = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ShowOverlay"]
+anims/hide = SubResource( 9 )
+anims/show = SubResource( 10 )
+
+[node name="ShowAdvancedPanelSettings" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -242.0
+margin_top = 1.0
+margin_right = -133.0
+margin_bottom = 21.0
+toggle_mode = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ShowAdvancedPanelSettings"]
+anims/hide = SubResource( 11 )
+anims/show = SubResource( 12 )
