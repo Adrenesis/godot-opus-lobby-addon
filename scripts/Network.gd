@@ -118,8 +118,11 @@ func get_my_id():
 	return get_tree().get_network_unique_id()
 
 
-func is_online():  # is_connected() exists already, for signals
-	return get_tree().has_network_peer()
+func is_online():  # is_connected() already exists, for signals
+	if not get_tree().has_network_peer():
+		return false
+	var np = get_tree().network_peer
+	return np.get_connection_status() == NetworkedMultiplayerPeer.CONNECTION_CONNECTED
 
 
 func is_server(_id = null):
