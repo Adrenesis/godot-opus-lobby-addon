@@ -3,6 +3,7 @@ extends Control
 var lobbyHolder : Control
 var buttonShowServerSettings : Button
 var buttonShowAdvancedPanelSettings : Button
+var buttonShowDeviceSettings : Button
 var buttonShowOverlay : Button
 var buttonShowLogger : Button
 var buttonServer : Control
@@ -16,6 +17,7 @@ var buttonVoice : Control
 var logger : Control
 var overlay : Control
 var advancedPanel : Control
+var deviceSettings : Control
 var nicknameField : LineEdit
 var messageField : LineEdit
 var portField : LineEdit
@@ -32,6 +34,7 @@ func _ready():
 	buttonVoice = serverSettingsContainer.get_node("ButtonVoice")
 	buttonShowServerSettings = get_node("ShowServerSettings")
 	buttonShowAdvancedPanelSettings = get_node("ShowAdvancedPanelSettings")
+	buttonShowDeviceSettings = get_node("ShowDeviceSettings")
 	buttonShowOverlay = get_node("ShowOverlay")
 	buttonShowLogger = get_node("ShowLogger")
 	portField = serverSettingsContainer.get_node('PortContainer/PortLineEdit')
@@ -42,6 +45,7 @@ func _ready():
 	buttonStopServer = serverSettingsContainer.get_node("ServerButtonContainer/ButtonStopServer")
 	buttonStopClient = serverSettingsContainer.get_node("ClientButtonContainer/ButtonStopClient")
 	advancedPanel = get_node('EditorAudioBuses')
+	deviceSettings = get_node('DeviceSettingsColorRect')
 	overlay = get_node('EditorAudioBusesMini')
 	logger = get_node("LoggerContainer/ScrollContainer/Log")
 	messageField = get_node("LoggerContainer/MessageField")
@@ -55,6 +59,8 @@ func _ready():
 		error = buttonShowServerSettings.connect("toggled", self, "_on_button_show_server_settings_toggled")
 	if not buttonShowAdvancedPanelSettings.is_connected("toggled", self, "_on_button_show_advanced_panel_settings_toggled"):
 		error = buttonShowAdvancedPanelSettings.connect("toggled", self, "_on_button_show_advanced_panel_settings_toggled")
+	if not buttonShowDeviceSettings.is_connected("toggled", self, "_on_button_show_device_settings_toggled"):
+		error = buttonShowDeviceSettings.connect("toggled", self, "_on_button_show_device_settings_toggled")
 	if not buttonShowOverlay.is_connected("toggled", self, "_on_button_show_overlay_toggled"):
 		error = buttonShowOverlay.connect("toggled", self, "_on_button_show_overlay_toggled")
 	if not buttonShowLogger.is_connected("toggled", self, "_on_button_show_logger_toggled"):
@@ -179,6 +185,9 @@ func _unhandled_key_input(event):
 			event, "ui_opus_lobby_show_advanced_panel_settings", 
 			buttonShowAdvancedPanelSettings, KEY_MASK_SHIFT + KEY_O)
 		check_action_to_press_button(
+			event, "ui_opus_lobby_show_device_settings", 
+			buttonShowDeviceSettings, KEY_MASK_SHIFT + KEY_U)
+		check_action_to_press_button(
 			event, "ui_opus_lobby_show_server_settings", 
 			buttonShowServerSettings, KEY_U)
 	if not InputMap.has_action("ui_opus_lobby_escape"):
@@ -226,10 +235,14 @@ func _on_button_show_server_settings_toggled(pressed : bool):
 			get_focus_owner().release_focus()
 			
 
+func _on_button_show_device_settings_toggled(pressed : bool):
+	deviceSettings.visible = pressed
+
 func _on_button_show_advanced_panel_settings_toggled(pressed : bool):
-	var player = buttonShowAdvancedPanelSettings.get_node("AnimationPlayer")
+	advancedPanel.visible = pressed
+#	var player = buttonShowAdvancedPanelSettings.get_node("AnimationPlayer")
 	print("hello")
-	toggle_window(pressed, player)
+#	toggle_window(pressed, player)
 
 func _on_button_show_overlay_toggled(pressed : bool):
 	var player = buttonShowOverlay.get_node("AnimationPlayer")

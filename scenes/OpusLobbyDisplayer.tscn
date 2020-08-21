@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://addons/adrenesis.opusLobby/fonts/Hack_Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://addons/adrenesis.opusLobby/icons/iconEX.png" type="Texture" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://addons/adrenesis.opusLobby/icons/iconGlow.png" type="Texture" id=6]
 [ext_resource path="res://addons/adrenesis.opusLobby/scenes/EditorAudioBusesMini.tscn" type="PackedScene" id=7]
 [ext_resource path="res://addons/adrenesis.opusLobby/scenes/EditorAudioBuses.tscn" type="PackedScene" id=8]
+[ext_resource path="res://addons/adrenesis.opusLobby/scripts/DeviceSettings.gd" type="Script" id=9]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Button
@@ -400,110 +401,6 @@ tracks/1/keys = {
 "values": [ 113.0, 1.0 ]
 }
 
-[sub_resource type="Animation" id=11]
-length = 0.12
-step = 0.06
-tracks/0/type = "value"
-tracks/0/path = NodePath("../EditorAudioBuses:margin_left")
-tracks/0/interp = 2
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ -1022.0, 0.0 ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("../EditorAudioBuses:margin_right")
-tracks/1/interp = 2
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ 4.0, 900.0 ]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath(".:margin_left")
-tracks/2/interp = 2
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ -1019.0, -242.0 ]
-}
-tracks/3/type = "value"
-tracks/3/path = NodePath(".:margin_right")
-tracks/3/interp = 2
-tracks/3/loop_wrap = true
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ -908.0, -133.0 ]
-}
-
-[sub_resource type="Animation" id=12]
-length = 0.12
-step = 0.06
-tracks/0/type = "value"
-tracks/0/path = NodePath("../EditorAudioBuses:margin_left")
-tracks/0/interp = 2
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ 0.0, -1022.0 ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("../EditorAudioBuses:margin_right")
-tracks/1/interp = 2
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ 900.0, 4.0 ]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath(".:margin_left")
-tracks/2/interp = 2
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ -242.0, -1019.0 ]
-}
-tracks/3/type = "value"
-tracks/3/path = NodePath(".:margin_right")
-tracks/3/interp = 2
-tracks/3/loop_wrap = true
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/keys = {
-"times": PoolRealArray( 0, 0.12 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ -133.0, -908.0 ]
-}
-
 [node name="OpusLobbyDisplayer" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -606,7 +503,6 @@ __meta__ = {
 [node name="icon2" type="Sprite" parent="ServerSettingsColorRect"]
 position = Vector2( 38.041, 228.628 )
 scale = Vector2( 0.916286, 0.944127 )
-skew = 4.37114e-08
 texture = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true
@@ -627,7 +523,6 @@ __meta__ = {
 [node name="icon" type="Sprite" parent="ServerSettingsColorRect"]
 position = Vector2( 98.304, 228.936 )
 scale = Vector2( 0.976479, 0.976479 )
-skew = 4.37114e-08
 texture = ExtResource( 6 )
 __meta__ = {
 "_edit_lock_": true
@@ -649,7 +544,6 @@ __meta__ = {
 [node name="icon3" type="Sprite" parent="ServerSettingsColorRect"]
 position = Vector2( 166.342, 227.632 )
 scale = Vector2( 1.09215, 1.09215 )
-skew = 4.37114e-08
 texture = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
@@ -848,21 +742,107 @@ __meta__ = {
 }
 
 [node name="EditorAudioBuses" parent="." instance=ExtResource( 8 )]
-anchor_left = 1.0
+visible = false
 anchor_bottom = 0.0
-margin_left = 0.0
-margin_top = 24.0
-margin_right = 900.0
-margin_bottom = 257.0
+margin_top = 26.0
+margin_bottom = 251.0
 rect_min_size = Vector2( 0, 225 )
+size_flags_horizontal = 3
 
 [node name="EditorAudioBusesMini" parent="." instance=ExtResource( 7 )]
 anchor_left = 1.0
-margin_left = -133.0
-margin_top = 0.0
-margin_right = 1.0
+margin_left = 0.0
+margin_top = 21.0
+margin_right = 113.0
 margin_bottom = -3.0
 rect_min_size = Vector2( 134, 0 )
+
+[node name="DeviceSettingsColorRect" type="ColorRect" parent="."]
+visible = false
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -637.0
+margin_top = 1.0
+margin_right = -194.0
+margin_bottom = 163.0
+color = Color( 0.12549, 0.141176, 0.192157, 1 )
+script = ExtResource( 9 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DeviceSettingsColorRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 7.0
+margin_right = -8.0
+margin_bottom = -5.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_right = 427.0
+margin_bottom = 14.0
+text = "Audio Device Settings"
+
+[node name="HSeparator" type="HSeparator" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 18.0
+margin_right = 427.0
+margin_bottom = 22.0
+
+[node name="OutputLabel" type="Label" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 26.0
+margin_right = 427.0
+margin_bottom = 40.0
+text = "Output Device:"
+
+[node name="OutputOptionButton" type="OptionButton" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 44.0
+margin_right = 427.0
+margin_bottom = 64.0
+clip_text = true
+
+[node name="InputLabel" type="Label" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 68.0
+margin_right = 427.0
+margin_bottom = 82.0
+text = "Input Device:"
+
+[node name="InputOptionButton" type="OptionButton" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 86.0
+margin_right = 427.0
+margin_bottom = 106.0
+clip_text = true
+
+[node name="HSeparator2" type="HSeparator" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 110.0
+margin_right = 427.0
+margin_bottom = 114.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DeviceSettingsColorRect/VBoxContainer"]
+margin_top = 118.0
+margin_right = 427.0
+margin_bottom = 138.0
+
+[node name="ConfirmButton" type="Button" parent="DeviceSettingsColorRect/VBoxContainer/HBoxContainer"]
+margin_right = 211.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="DeviceSettingsColorRect/VBoxContainer/HBoxContainer"]
+margin_left = 215.0
+margin_right = 427.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Cancel"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="ShowServerSettings" type="Button" parent="."]
 anchor_left = 1.0
@@ -905,9 +885,10 @@ anims/show = SubResource( 8 )
 [node name="ShowOverlay" type="Button" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -128.0
+margin_left = -136.0
+margin_top = 1.0
 margin_right = -3.0
-margin_bottom = 21.0
+margin_bottom = 22.0
 toggle_mode = true
 __meta__ = {
 "_edit_use_anchors_": false
@@ -920,15 +901,23 @@ anims/show = SubResource( 10 )
 [node name="ShowAdvancedPanelSettings" type="Button" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -242.0
+margin_left = -190.0
 margin_top = 1.0
-margin_right = -133.0
+margin_right = -168.0
 margin_bottom = 21.0
 toggle_mode = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="ShowAdvancedPanelSettings"]
-anims/hide = SubResource( 11 )
-anims/show = SubResource( 12 )
+[node name="ShowDeviceSettings" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -163.0
+margin_top = 1.0
+margin_right = -141.0
+margin_bottom = 21.0
+toggle_mode = true
+__meta__ = {
+"_edit_use_anchors_": false
+}

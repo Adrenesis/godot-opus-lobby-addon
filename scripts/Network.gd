@@ -98,6 +98,7 @@ func start_server():
 func _create_audio_bus_and_stream_player(name : String):
 	AudioServer.add_bus()
 	AudioServer.set_bus_name(AudioServer.get_bus_count() - 1, name)
+	AudioServer.add_bus_effect(AudioServer.get_bus_count() - 1, AudioEffectPitchShift.new(), 0)
 	AudioServer.set_bus_send(AudioServer.get_bus_count() - 1, "Master")
 	var audioStreamPlayer = AudioStreamPlayer.new()
 	audioStreamPlayer.stream = AudioStreamSample.new()
