@@ -3,7 +3,7 @@ extends AudioStreamPlayer
 signal packet_sent
 signal packet_received
 
-const MIN_PACKET_LENGTH = 0.350
+const MIN_PACKET_LENGTH = 0.180
 
 var mic : AudioEffectRecord
 var mic1 : AudioEffectRecord
@@ -50,7 +50,7 @@ remote func _receive_packet(id : int, opusPackets, format, mix_rate, stereo):
 	audioStream.set_stereo(stereo)
 	if not receive_buffer.has(id):
 		receive_buffer[id] = []
-		time_since_last_packet_played[id] = 10.0
+		time_since_last_packet_played[id] = MIN_PACKET_LENGTH
 	receive_buffer[id].push_back(audioStream)
 
 func _play(id, audioStream):
@@ -63,17 +63,14 @@ func _process(delta: float) -> void:
 	#take record of mic
 	#disable mic
 	# mic1 = mic
-	if time_elapsed >= MIN_PACKET_LENGTH * 0.8:
+	if time_elapsed >= MIN_PACKET_LENGTH * 0.9:
 		mic1.set_recording_active(true)
 	if time_elapsed >= MIN_PACKET_LENGTH:
 		record = mic.get_recording()
-		get_node("../Input").stream_paused = true
-#		yield(get_tree(), "idle_frame")
 		mic.set_recording_active(false)
 		var mic_temp = mic
 		mic = mic1
 		mic1 = mic_temp
-		get_node("../Input").stream_paused = false
 		var pcmData = record.get_data()
 		# Encode the raw PCM data to a stream of Opus Packets
 		var opusEncoded = opusEncoder.encode(pcmData)
@@ -123,8 +120,14 @@ func _process(delta: float) -> void:
 #	var key : int
 	for key in receive_buffer.keys():
 		time_since_last_packet_played[key] += delta
-		if time_since_last_packet_played[key] >= MIN_PACKET_LENGTH*1.1:
+		if time_since_last_packet_played[key] >= MIN_PACKET_LENGTH:
 			if receive_buffer[key].size() >= 1:
+				var playback_speed : float = 1.0 + 0.05 * (receive_buffer[key].size()-1)
+				var busId : int = AudioServer.get_bus_index("Player" + str(key))
+				var effect : AudioEffectPitchShift = AudioServer.get_bus_effect(busId, 0)
+				var output = get_node("Player" + str(key) + "Output")
+				output.pitch_scale = playback_speed
+				effect.pitch_scale = 1.0 / playback_speed
 				_play(key, receive_buffer[key].pop_front())
 			
 			
