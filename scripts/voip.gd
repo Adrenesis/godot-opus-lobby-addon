@@ -3,7 +3,9 @@ extends AudioStreamPlayer
 signal packet_sent
 signal packet_received
 
-const MIN_PACKET_LENGTH = 0.180
+export(float) var packet_length = 0.200
+export(float) var loop_begin = 0.1
+export(float) var over_record_length = 0.6
 
 var mic : AudioEffectRecord
 var mic1 : AudioEffectRecord
@@ -23,6 +25,7 @@ var currentRecord
 var holding_packet = false
 var taking_final_packet = false
 var timeSinceLastPacketRecorded : float = 0
+var precapture_done = false
 
 func _ready():
 	mic = AudioServer.get_bus_effect(AudioServer.get_bus_index("Record"), 0)
@@ -50,22 +53,23 @@ remote func _receive_packet(id : int, opusPackets, format, mix_rate, stereo):
 	audioStream.set_stereo(stereo)
 	if not receive_buffer.has(id):
 		receive_buffer[id] = []
-		time_since_last_packet_played[id] = MIN_PACKET_LENGTH
+		time_since_last_packet_played[id] = 10.0
 	receive_buffer[id].push_back(audioStream)
 
 func _play(id, audioStream):
 	var audioStreamPlayer = get_node('Player' + str(id) + 'Output')
 	audioStreamPlayer.stream = audioStream
-	audioStreamPlayer.play()
+	audioStreamPlayer.play(packet_length * loop_begin)
 		
 func _process(delta: float) -> void:
 	#active mic1
 	#take record of mic
 	#disable mic
 	# mic1 = mic
-	if time_elapsed >= MIN_PACKET_LENGTH * 0.9:
+	if time_elapsed >= packet_length * (1.0 - over_record_length) and not precapture_done:
 		mic1.set_recording_active(true)
-	if time_elapsed >= MIN_PACKET_LENGTH:
+		precapture_done = true
+	if time_elapsed >= packet_length:
 		record = mic.get_recording()
 		mic.set_recording_active(false)
 		var mic_temp = mic
@@ -78,6 +82,7 @@ func _process(delta: float) -> void:
 		lastRecord = currentRecord
 		currentPacket = opusEncoded
 		currentRecord = record
+		precapture_done = false
 		time_elapsed = 0
 	if (not was_recording and recording) and lastPacket and lastRecord:
 		taking_final_packet = false
@@ -93,7 +98,7 @@ func _process(delta: float) -> void:
 			currentRecord = null
 			currentPacket = null
 		timeSinceLastPacketRecorded = 0
-	if (recording and timeSinceLastPacketRecorded >= MIN_PACKET_LENGTH):
+	if (recording and timeSinceLastPacketRecorded >= packet_length):
 		if currentRecord:
 			rpc("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecord.get_format(), currentRecord.get_mix_rate(), currentRecord.is_stereo())
 			emit_signal("packet_sent", [ currentRecord.get_data().size() ] )
@@ -101,7 +106,7 @@ func _process(delta: float) -> void:
 			currentPacket = null
 		timeSinceLastPacketRecorded = 0
 	if(was_recording and not recording) or taking_final_packet or holding_packet:
-		if timeSinceLastPacketRecorded >= MIN_PACKET_LENGTH:
+		if timeSinceLastPacketRecorded >= packet_length:
 			if currentRecord:
 				rpc("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecord.get_format(), currentRecord.get_mix_rate(), currentRecord.is_stereo())
 				emit_signal("packet_sent", [ currentRecord.get_data().size() ] )
@@ -120,15 +125,16 @@ func _process(delta: float) -> void:
 #	var key : int
 	for key in receive_buffer.keys():
 		time_since_last_packet_played[key] += delta
-		if time_since_last_packet_played[key] >= MIN_PACKET_LENGTH:
+		if time_since_last_packet_played[key] >= packet_length:
 			if receive_buffer[key].size() >= 1:
-				var playback_speed : float = 1.0 + 0.05 * (receive_buffer[key].size()-1)
-				var busId : int = AudioServer.get_bus_index("Player" + str(key))
+				var playback_speed = 1.0 + receive_buffer[key].size() * 0.05
+				var output = get_node('Player' + str(key) + 'Output')
+				var busId = AudioServer.get_bus_index("Player" + str(key))
 				var effect : AudioEffectPitchShift = AudioServer.get_bus_effect(busId, 0)
-				var output = get_node("Player" + str(key) + "Output")
 				output.pitch_scale = playback_speed
 				effect.pitch_scale = 1.0 / playback_speed
 				_play(key, receive_buffer[key].pop_front())
+				time_since_last_packet_played[key] = 0
 			
 			
 #			mic.set_recording_active(true)
