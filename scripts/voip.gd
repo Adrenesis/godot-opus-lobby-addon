@@ -158,8 +158,10 @@ func _process(delta: float) -> void:
 				var output = get_node('Player' + str(key) + 'Output')
 				var busId = AudioServer.get_bus_index("Player" + str(key))
 				var effect : AudioEffectPitchShift = AudioServer.get_bus_effect(busId, 0)
-				output.pitch_scale = playback_speed
-				effect.pitch_scale = 1.0 / playback_speed
+				if output:
+					output.pitch_scale = playback_speed
+				if effect:
+					effect.pitch_scale = 1.0 / playback_speed
 				_play(key, receive_buffer[key].pop_front())
 				time_since_last_packet_played[key] = 0
 
