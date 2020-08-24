@@ -133,7 +133,11 @@ func _on_players_name_updated():
 		displayer.advancedPanel.read_audioserver_buses(true)
 
 func _on_packet_sent(size):
-	send_to_logger("send recording of size %s" % size)
+	# End up memory leaking for now because of labels' drawcalls
+#	send_to_logger("send recording of size %s" % size)
+	pass
 
 func _on_packet_received(id):
-	send_to_logger("received audio from player with id: %s" % id)
+	# End up memory leaking for now
+#	send_to_logger("received audio from player with id: %s" % id)
+	pass
