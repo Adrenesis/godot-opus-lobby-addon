@@ -4,7 +4,7 @@ signal packet_sent
 signal packet_received
 
 export(float) var packet_length = 0.200
-export(float) var loop_begin = 0.1
+export(float) var loop_begin = 0.2
 export(float) var over_record_length = 0.6
 
 var mic : AudioEffectRecord
@@ -19,8 +19,6 @@ var opusEncoder
 var opusDecoder
 var lastPacket
 var currentPacket
-var lastRecord
-var currentRecord
 var holding_packet = false
 var taking_final_packet = false
 var timeSinceLastPacketRecorded : float = 0
@@ -28,7 +26,18 @@ var precapture_done = false
 var currentRecordInfo = Dictionary()
 var lastRecordInfo = Dictionary()
 
+var record_thread_delay_ms = 50
+var thread_record_active = true
+var thread_read_active = true
+var recordThread: Thread
+var readThread : Thread
+
+var readMutex : Mutex
+
 func _ready():
+	recordThread = Thread.new()
+	readThread = Thread.new()
+	readMutex = Mutex.new()
 	mic = AudioServer.get_bus_effect(AudioServer.get_bus_index("Record"), 0)
 	mic1 = AudioServer.get_bus_effect(AudioServer.get_bus_index("Record"), 1)
 	if ! mic:
@@ -37,42 +46,33 @@ func _ready():
 			" and the effect 'AudioRecordEffect'.\n" +
 			"You can check /addons/adrenesis.opusLobby/default_bus_layout.tres for an example.\n" +
 			"Check your project setting (under Audio) to set default audio bus layout.")
+	
 	logger = get_node("../OpusLobbyDisplayer/LoggerContainer/ScrollContainer/Log")
 	opusEncoder = get_node("../OpusEncoder")
 	opusDecoder = get_node("../OpusDecoder")
 	mic.set_recording_active(true)
 	mic.set_format(AudioStreamSample.FORMAT_16_BITS)
+	recordThread.start(self, "_thread_record")
+	readThread.start(self, "_thread_read_received")
 
-remote func _receive_packet(id : int, opusPackets, format, mix_rate, stereo):
-	emit_signal("packet_received", id)
-	# Decode the incoming packets into raw PCM data
-	var audioStream = AudioStreamSample.new()
-	audioStream.data = opusDecoder.decode(opusPackets)
-	audioStream.set_format(format)
-	audioStream.set_mix_rate(mix_rate)
-	audioStream.set_stereo(stereo)
-	# Emulate packet to test memory leaks on rpc
-#	var data : PoolByteArray = PoolByteArray()
-#	print(int(44100 * packet_length))
-#	data.resize(int(44100 * packet_length * 4 ))
-#	for i in range(data.size()):
-#		data[i] = rand_range(-32768, 32768)
-#	print(data.size())
-#	audioStream = AudioStreamSample.new()
-#	audioStream.mix_rate = 44100
-#	audioStream.stereo = true
-#	audioStream.format = AudioStreamSample.FORMAT_16_BITS
-#	audioStream.set_data(data)
-	if not receive_buffer.has(id):
-		time_since_last_packet_played[id] = 10.0
-		receive_buffer[id] = []
-	receive_buffer[id].push_back(audioStream)
-	opusPackets = null
 
-func _play(id, audioStream):
-	var audioStreamPlayer = get_node('Player' + str(id) + 'Output')
-	audioStreamPlayer.stream = audioStream
-	audioStreamPlayer.play(packet_length * loop_begin)
+func _notification(what):
+	if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+		thread_record_active = false
+		thread_read_active = false
+		recordThread.wait_to_finish()
+		readThread.wait_to_finish()
+		get_tree().quit() # default behavior
+
+func _free():
+	thread_record_active = false
+	thread_read_active = false
+	recordThread.wait_to_finish()
+	readThread.wait_to_finish()
+
+############### RECORD THREAD
+
+# RECORD TOOLS
 
 func get_record_info(record, opusEncoded):
 	var recordInfo = Dictionary()
@@ -88,13 +88,14 @@ func update_packet():
 	if not record:
 		return
 	var opusEncoded = opusEncoder.encode(record.get_data())
-	
 	lastPacket = currentPacket
 	lastRecordInfo = currentRecordInfo
 	currentPacket = opusEncoded
 	currentRecordInfo = get_record_info(record, opusEncoded)
 
-func _process(delta: float) -> void:
+# RECORD THREAD
+
+func _record():
 	if time_elapsed >= packet_length * (1.0 - over_record_length) and not precapture_done:
 		mic1.set_recording_active(true)
 		precapture_done = true
@@ -108,20 +109,20 @@ func _process(delta: float) -> void:
 		mic1 = mic_temp
 		precapture_done = false
 		time_elapsed = 0
-	if (not was_recording and recording) and lastPacket and lastRecord:
+
+func _send_record():
+	if (not was_recording and recording) and lastPacket and lastRecordInfo:
 		taking_final_packet = false
 		holding_packet = false
 		if lastRecordInfo:
 			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), lastPacket, lastRecordInfo["format"], lastRecordInfo["mix_rate"], lastRecordInfo["stereo"])
 			emit_signal("packet_sent", [ lastRecordInfo["size"] ] )
 			lastRecordInfo = null
-			lastPacket.resize(0)
 			lastPacket = null
 		if currentRecordInfo:
 			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
 			emit_signal("packet_sent", [ currentRecordInfo["size"] ] )
 			currentRecordInfo = null
-			currentPacket.resize(0)
 			currentPacket = null
 		timeSinceLastPacketRecorded = 0
 	if (recording and timeSinceLastPacketRecorded >= packet_length):
@@ -129,7 +130,6 @@ func _process(delta: float) -> void:
 			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
 			emit_signal("packet_sent", [ currentRecordInfo["size"] ] )
 			currentRecordInfo = null
-			currentPacket.resize(0)
 			currentPacket = null
 		timeSinceLastPacketRecorded = 0
 	if(was_recording and not recording) or taking_final_packet or holding_packet:
@@ -138,23 +138,43 @@ func _process(delta: float) -> void:
 				rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
 				emit_signal("packet_sent", [ currentRecordInfo["size"] ] )
 				currentRecordInfo = null
-				currentPacket.resize(0)
 				currentPacket = null
 			holding_packet = false
 			taking_final_packet = not taking_final_packet
 			timeSinceLastPacketRecorded = 0
 		else:
 			holding_packet = true
-	if mic.is_recording_active():
-		time_elapsed += delta
-#		print("pouet")
-	else:
-		time_elapsed = 0
+	was_recording = recording
+
+func _thread_record(_stub):
+	var old_tick = OS.get_ticks_msec()
+	while(thread_record_active):
+		time_elapsed += (OS.get_ticks_msec() - old_tick) / 1000.0
+		timeSinceLastPacketRecorded += (OS.get_ticks_msec() - old_tick) / 1000.0
+		old_tick = OS.get_ticks_msec()
+		OS.delay_msec(16)
+		if not thread_record_active:
+			return
+		_record()
+		if Network.is_online():
+			_send_record()
+
+
+############### READ THRAD
+
+func _play(id, audioStream):
+	var audioStreamPlayer = get_node('Player' + str(id) + 'Output')
+	audioStream.data = opusDecoder.decode(audioStream.data)
+	audioStreamPlayer.stream = audioStream
+	audioStreamPlayer.play(packet_length * loop_begin)
+
+func _read_received_packets(delta):
 	for key in receive_buffer.keys():
+		readMutex.lock()
 		time_since_last_packet_played[key] += delta
 		if time_since_last_packet_played[key] >= packet_length:
 			if receive_buffer[key].size() >= 1:
-				var playback_speed = 1.0 + receive_buffer[key].size() * 0.05
+				var playback_speed = 1.0 + (receive_buffer[key].size() - 1) * 0.05
 				var output = get_node('Player' + str(key) + 'Output')
 				var busId = AudioServer.get_bus_index("Player" + str(key))
 				var effect : AudioEffectPitchShift = AudioServer.get_bus_effect(busId, 0)
@@ -164,7 +184,43 @@ func _process(delta: float) -> void:
 					effect.pitch_scale = 1.0 / playback_speed
 				_play(key, receive_buffer[key].pop_front())
 				time_since_last_packet_played[key] = 0
+		readMutex.unlock()
 
-	timeSinceLastPacketRecorded += delta
+func _thread_read_received(_stub):
+	var old_tick = OS.get_ticks_msec()
+	while(thread_read_active):
+		var delta = (OS.get_ticks_msec() - old_tick) / 1000.0
+		old_tick = OS.get_ticks_msec()
+		OS.delay_msec(16)
+		if not thread_record_active:
+			return
+		_read_received_packets(delta)
 
-	was_recording = recording
+############### MAIN THREAD
+
+remote func _receive_packet(id : int, opusPackets, format, mix_rate, stereo):
+	var audioStream = AudioStreamSample.new()
+	emit_signal("packet_received", id)
+	audioStream.data = opusPackets
+	audioStream.set_format(format)
+	audioStream.set_mix_rate(mix_rate)
+	audioStream.set_stereo(stereo)
+	readMutex.lock()
+	if not receive_buffer.has(id):
+		time_since_last_packet_played[id] = 10.0
+		receive_buffer[id] = []
+	receive_buffer[id].push_back(audioStream)
+	opusPackets = null
+	readMutex.unlock()
+	
+#func _process(delta: float) -> void:
+#	_record()
+#	time_elapsed += delta
+#	timeSinceLastPacketRecorded += delta
+#	_read_received_packets()
+#	pass
+
+
+
+
+
