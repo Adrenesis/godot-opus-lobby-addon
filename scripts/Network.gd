@@ -13,7 +13,6 @@ signal player_disconnected
 signal client_failed
 signal nickname_changed
 signal players_name_updated
-signal audio_buses_changed
 signal online_started
 #signal online_ended
 
@@ -31,7 +30,6 @@ var players_ids := Array()
 # Network id (int) => player nickname (String)
 var players_nickname := Dictionary()
 # Network id (int) => player streamPlayer (AudioStreamPlayer)
-var player_stream := Dictionary()
 
 var peer : NetworkedMultiplayerENet = null
 
@@ -95,20 +93,6 @@ func start_server():
 	lastId = get_tree().get_network_unique_id()
 	emit_signal("server_started")
 
-func _create_audio_bus_and_stream_player(name : String):
-	AudioServer.add_bus()
-	AudioServer.set_bus_name(AudioServer.get_bus_count() - 1, name)
-	AudioServer.add_bus_effect(AudioServer.get_bus_count() - 1, AudioEffectPitchShift.new(), 0)
-	AudioServer.set_bus_send(AudioServer.get_bus_count() - 1, "Master")
-	var audioStreamPlayer = AudioStreamPlayer.new()
-	audioStreamPlayer.stream = AudioStreamSample.new()
-	audioStreamPlayer.autoplay = true
-	audioStreamPlayer.bus = name
-	audioStreamPlayer.name = name + "Output"
-	player_stream[name] = audioStreamPlayer
-	output.add_child(audioStreamPlayer)
-	emit_signal("audio_buses_changed")
-
 
 func get_net_id():  # deprecated
 	return get_tree().get_network_unique_id()
@@ -143,8 +127,6 @@ func is_this_instance(_id):
 
 func check_and_reformulate_nickname(_originalNickname, _nickname, i = 0):
 	if players_nickname.values().find(_nickname) != -1:
-#		print("orginalNickname: " + _originalNickname)
-#		print(_nickname)
 		return check_and_reformulate_nickname(_originalNickname, _originalNickname +" (" + str(i) + ")", i+1)
 	else:
 		return _nickname
@@ -178,13 +160,17 @@ remote func _add_player(_id, confirm = true):
 		# CLIENT SIDE: AUTOMATIC NICKNAME ACCEPT
 		# called when client connect in the middle of an active lobby
 		if not confirm:
-			confirm_connection(_id, players_nickname[_id])
+			if players_nickname.has(_id):
+				confirm_connection(_id, players_nickname[_id])
+			else:
+				# think about what should be done
+				pass
 
 remote func call_for_nickname(caller_id):
 	# CLIENT SIDE
 	_add_player(1)
 	print("answering nickname")
-	print("my id: " + str(get_tree().get_network_unique_id()))
+#	print("my id: " + str(get_tree().get_network_unique_id()))
 	rpc_id(caller_id, "answer_nickname", get_net_id(), nickname)
 
 remote func answer_nickname(_id, _nickname):
@@ -209,15 +195,16 @@ remote func confirm_nickname(_id, _nickname, _caller_id):
 
 remote func confirm_connection(_id, _nickname):
 	# BOTH CLIENT AND SERVER
-	emit_signal("player_connected", _id, _nickname)
 	print("confirming connection")
 	if is_server():
+		emit_signal("player_connected", _id, _nickname)
 		print("as server")
 		# IF SERVER => REFRESH ALL CLIENTS' NICKNAME LISTS 
 		rpc("reset_names", players_nickname)
-	# REGISTER NICKNAME
-	players_nickname[_id] = _nickname
-	_create_audio_bus_and_stream_player("Player" + str(_id))
+	else:
+		# REGISTER NICKNAME
+		players_nickname[_id] = _nickname
+		emit_signal("player_connected", _id, _nickname)
 	# Careful, nicknames may not be set yet
 	emit_signal("online_started")
 
@@ -229,21 +216,10 @@ func _player_connecting(_id):
 		rpc_id(_id, "set_players", players_ids, players_nickname)
 
 
-# Move to signal listener
-func _destroy_bus_and_audio_stream_player(name : String):
-#	print("destroying " + name)
-	AudioServer.remove_bus(AudioServer.get_bus_index(name))
-	var audioStreamPlayer = player_stream[name]
-	audioStreamPlayer.queue_free()
-	player_stream[name] = null
-	emit_signal("audio_buses_changed")
-
-
 remote func _remove_player(_id, source_id):
 #	print(_id)
 	if _id != source_id:
 		emit_signal("player_disconnected", _id, players_nickname[_id])
-		_destroy_bus_and_audio_stream_player("Player" + str(_id))
 		players_ids.remove((players_ids.find(_id)))
 		players_nickname.erase(_id)
 #		players_nickname.erase(_id)
@@ -255,7 +231,6 @@ func remove_players():
 		var player = players_ids[player_index]
 		if player != lastId:
 			emit_signal("player_disconnected", player, players_nickname[player])
-			_destroy_bus_and_audio_stream_player("Player" + str(player))
 	players_ids = []
 	players_nickname = Dictionary()
 

@@ -45,9 +45,8 @@ Audio Bus Setup:
     Add an AudioBus named "RecordLoopback"
     Redirect that bus to "Master"
     Add an AudioBus named "Record"
-    Add an AudioMicrophoneEffect on it
-    Add another AudioMicrophoneEffect on it
     Redirect that bus to RecordLoopBack
+    Mute RecordLoopBack for user's comfort :P
 ```
 
 ## Known Issues:
@@ -60,9 +59,8 @@ https://github.com/godotengine/godot/issues/34494#issuecomment-679106012 <br>
 Therefore should be build with either:
 mika314's fix (found at: https://github.com/godotengine/godot/pull/36569/commits) <br>
 or ours (found at: https://github.com/Adrenesis/godot/tree/audio-fix-get-recording-cowdata) <br>
-you can also get more functionnal branch for this by getting another one of ours (found at: https://github.com/Adrenesis/godot/tree/3.2-all-audio-fixes) <br>
-which fixes that, a race condition for linux monkeyfixed by some long print at init, and add get_recording_size to avoid outputing useless errors.
+you can also get more functional branch for this by getting another one of ours (found at: https://github.com/Adrenesis/godot/tree/3.2-all-audio-fixes) <br> which fixes that, a race condition for linux monkeyfixed by some long print at init, and add get_recording_size to avoid outputing useless errors.
 
 ##### Multithread
 
-It can crash on application exit sometimes, there is some code to avoid that but this is stille pretty new to me.
+It is probably not stable and it is not fully multithreaded (thinking about some modules for that), there is some code to avoid that but this is still pretty new to me.

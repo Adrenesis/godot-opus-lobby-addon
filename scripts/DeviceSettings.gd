@@ -46,7 +46,7 @@ func on_visibility_changed():
 		oldOutput = AudioServer.get_device()
 		oldInput = AudioServer.capture_get_device()
 
-		print((AudioServer.get_device_list().find(AudioServer.get_device())))
+#		print((AudioServer.get_device_list().find(AudioServer.get_device())))
 		outputButton.selected = (AudioServer.get_device_list().find(oldOutput))
 		inputButton.selected =(AudioServer.capture_get_device_list().find(oldInput))
 		var _error
@@ -56,7 +56,6 @@ func on_visibility_changed():
 			_error = inputButton.connect("item_selected", self, "on_input_selected")
 
 func on_cancel_pressed():
-	print("what?" + str((AudioServer.get_device_list().find(oldOutput))))
 	outputButton.selected =(AudioServer.get_device_list().find(oldOutput))
 	inputButton.selected =(AudioServer.capture_get_device_list().find(oldInput))
 	AudioServer.device  = (AudioServer.get_device_list()[outputButton.selected])

@@ -77,10 +77,10 @@ func _ready():
 		error = buttonVoice.connect("button_down", self, "_on_button_voice_button_down")
 	if not buttonVoice.is_connected("button_up", self, "_on_button_voice_button_up"):
 		error = buttonVoice.connect("button_up", self, "_on_button_voice_button_up")
-	if not Network.is_connected("audio_buses_changed", advancedPanel, "read_audioserver_buses"):
-		error = Network.connect("audio_buses_changed", advancedPanel, "read_audioserver_buses")
-	if not Network.is_connected("audio_buses_changed", overlay, "read_audioserver_buses"):
-		error = Network.connect("audio_buses_changed", overlay, "read_audioserver_buses")
+	if not output.is_connected("audio_buses_changed", advancedPanel, "read_audioserver_buses"):
+		error = output.connect("audio_buses_changed", advancedPanel, "read_audioserver_buses")
+	if not output.is_connected("audio_buses_changed", overlay, "read_audioserver_buses"):
+		error = output.connect("audio_buses_changed", overlay, "read_audioserver_buses")
 	if not Network.is_connected("client_started", lobbyHolder, "_on_client_started"):
 		error = Network.connect("client_started", lobbyHolder, "_on_client_started")
 	if not Network.is_connected("client_started", lobbyHolder, "_on_client_stopped"):
@@ -241,7 +241,6 @@ func _on_button_show_device_settings_toggled(pressed : bool):
 func _on_button_show_advanced_panel_settings_toggled(pressed : bool):
 	advancedPanel.visible = pressed
 #	var player = buttonShowAdvancedPanelSettings.get_node("AnimationPlayer")
-	print("hello")
 #	toggle_window(pressed, player)
 
 func _on_button_show_overlay_toggled(pressed : bool):

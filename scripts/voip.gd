@@ -2,6 +2,8 @@ extends AudioStreamPlayer
 
 signal packet_sent
 signal packet_received
+signal audio_buses_changed
+signal packet_to_send(id, packet, format, mixrate, stereo)
 
 export(float) var packet_length = 0.200
 export(float) var loop_begin = 0.2
@@ -14,6 +16,7 @@ var was_recording = false
 var time_elapsed = 0
 var receive_buffer = Dictionary()
 var time_since_last_packet_played = Dictionary()
+var players_stream := Dictionary()
 var logger
 var opusEncoder
 var opusDecoder
@@ -38,8 +41,17 @@ func _ready():
 	recordThread = Thread.new()
 	readThread = Thread.new()
 	readMutex = Mutex.new()
+	if not Network.is_connected("player_connected", self, "_create_audio_bus_and_stream_player"):
+		Network.connect("player_connected", self, "_create_audio_bus_and_stream_player")
+	if not Network.is_connected("player_disconnected", self, "_destroy_audio_bus_and_stream_player"):
+		Network.connect("player_disconnected", self, "_destroy_audio_bus_and_stream_player")
+	if not self.is_connected("packet_to_send", self, "send_packet"):
+		self.connect("packet_to_send", self, "send_packet")
+	AudioServer.add_bus_effect(AudioServer.get_bus_index("Record"), AudioEffectRecord.new(), 0)
+	AudioServer.add_bus_effect(AudioServer.get_bus_index("Record"), AudioEffectRecord.new(), 1)
 	mic = AudioServer.get_bus_effect(AudioServer.get_bus_index("Record"), 0)
 	mic1 = AudioServer.get_bus_effect(AudioServer.get_bus_index("Record"), 1)
+	
 	if ! mic:
 		assert(false, 
 			"No AudioServer bus has been detected with the name 'Record'" +  
@@ -54,21 +66,30 @@ func _ready():
 	mic.set_format(AudioStreamSample.FORMAT_16_BITS)
 	recordThread.start(self, "_thread_record")
 	readThread.start(self, "_thread_read_received")
+	
 
+func shutdown():
 
-func _notification(what):
-	if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-		thread_record_active = false
-		thread_read_active = false
-		recordThread.wait_to_finish()
-		readThread.wait_to_finish()
-		get_tree().quit() # default behavior
-
-func _free():
 	thread_record_active = false
 	thread_read_active = false
 	recordThread.wait_to_finish()
 	readThread.wait_to_finish()
+	mic.set_recording_active(false)
+	mic1.set_recording_active(false)
+	mic = null
+	mic1 = null
+	AudioServer.remove_bus_effect(AudioServer.get_bus_index("Record"), 0)
+	AudioServer.remove_bus_effect(AudioServer.get_bus_index("Record"), 0)
+	if Network.is_connected("player_connected", self, "_create_audio_bus_and_stream_player"):
+		Network.disconnect("player_connected", self, "_create_audio_bus_and_stream_player")
+	if Network.is_connected("player_disconnected", self, "_destroy_audio_bus_and_stream_player"):
+		Network.disconnect("player_disconnected", self, "_destroy_audio_bus_and_stream_player")
+
+func _notification(what):
+	if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+		shutdown()
+		queue_free() # default behavior
+
 
 ############### RECORD THREAD
 
@@ -110,24 +131,30 @@ func _record():
 		precapture_done = false
 		time_elapsed = 0
 
+func send_packet(id, packet, format, mixrate, stereo):
+	rpc_unreliable("_receive_packet", id, packet, format, mixrate, stereo)
+
 func _send_record():
 	if (not was_recording and recording) and lastPacket and lastRecordInfo:
 		taking_final_packet = false
 		holding_packet = false
 		if lastRecordInfo:
-			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), lastPacket, lastRecordInfo["format"], lastRecordInfo["mix_rate"], lastRecordInfo["stereo"])
+#			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), lastPacket, lastRecordInfo["format"], lastRecordInfo["mix_rate"], lastRecordInfo["stereo"])
+			emit_signal("packet_to_send", get_tree().get_network_unique_id(), lastPacket, lastRecordInfo["format"], lastRecordInfo["mix_rate"], lastRecordInfo["stereo"])
 			emit_signal("packet_sent", [ lastRecordInfo["size"] ] )
 			lastRecordInfo = null
 			lastPacket = null
 		if currentRecordInfo:
-			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
+			emit_signal("packet_to_send", get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
+#			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
 			emit_signal("packet_sent", [ currentRecordInfo["size"] ] )
 			currentRecordInfo = null
 			currentPacket = null
 		timeSinceLastPacketRecorded = 0
 	if (recording and timeSinceLastPacketRecorded >= packet_length):
 		if currentRecordInfo:
-			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
+#			rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
+			emit_signal("packet_to_send", get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
 			emit_signal("packet_sent", [ currentRecordInfo["size"] ] )
 			currentRecordInfo = null
 			currentPacket = null
@@ -135,7 +162,8 @@ func _send_record():
 	if(was_recording and not recording) or taking_final_packet or holding_packet:
 		if timeSinceLastPacketRecorded >= packet_length:
 			if currentRecordInfo:
-				rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
+#				rpc_unreliable("_receive_packet",get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
+				emit_signal("packet_to_send", get_tree().get_network_unique_id(), currentPacket, currentRecordInfo["format"], currentRecordInfo["mix_rate"], currentRecordInfo["stereo"])
 				emit_signal("packet_sent", [ currentRecordInfo["size"] ] )
 				currentRecordInfo = null
 				currentPacket = null
@@ -156,17 +184,21 @@ func _thread_record(_stub):
 		if not thread_record_active:
 			return
 		_record()
-		if Network.is_online():
-			_send_record()
+#		if Network.is_online():
+#			_send_record()
 
 
 ############### READ THRAD
 
 func _play(id, audioStream):
-	var audioStreamPlayer = get_node('Player' + str(id) + 'Output')
-	audioStream.data = opusDecoder.decode(audioStream.data)
-	audioStreamPlayer.stream = audioStream
-	audioStreamPlayer.play(packet_length * loop_begin)
+	if not players_stream.has(id):
+		return
+	var audioStreamPlayer = players_stream[id]
+	if audioStreamPlayer:
+		audioStream.data = opusDecoder.decode(audioStream.data)
+		audioStreamPlayer.set_deferred("stream", audioStream)
+		audioStreamPlayer.call_deferred("play", packet_length * loop_begin)
+		# todo: find what to do
 
 func _read_received_packets(delta):
 	for key in receive_buffer.keys():
@@ -175,8 +207,14 @@ func _read_received_packets(delta):
 		if time_since_last_packet_played[key] >= packet_length:
 			if receive_buffer[key].size() >= 1:
 				var playback_speed = 1.0 + (receive_buffer[key].size() - 1) * 0.05
-				var output = get_node('Player' + str(key) + 'Output')
+				if not players_stream.has(key):
+					readMutex.unlock()
+					continue
+				var output = players_stream[key]
 				var busId = AudioServer.get_bus_index("Player" + str(key))
+				if busId == -1:
+					readMutex.unlock()
+					continue
 				var effect : AudioEffectPitchShift = AudioServer.get_bus_effect(busId, 0)
 				if output:
 					output.pitch_scale = playback_speed
@@ -198,7 +236,42 @@ func _thread_read_received(_stub):
 
 ############### MAIN THREAD
 
+# Move to signal listener
+func _create_audio_bus_and_stream_player(_id, _nickname):
+	var _name : String = "Player" + str(_id)
+	AudioServer.add_bus()
+	AudioServer.set_bus_name(AudioServer.get_bus_count() - 1, _name)
+	AudioServer.add_bus_effect(AudioServer.get_bus_count() - 1, AudioEffectPitchShift.new(), 0)
+	AudioServer.set_bus_send(AudioServer.get_bus_count() - 1, "Master")
+	var audioStreamPlayer = AudioStreamPlayer.new()
+	audioStreamPlayer.stream = AudioStreamSample.new()
+	audioStreamPlayer.autoplay = true
+	audioStreamPlayer.bus = _name
+	audioStreamPlayer.name = _name + "Output"
+	players_stream[_id] = audioStreamPlayer
+	emit_signal("audio_buses_changed")
+	add_child(audioStreamPlayer)
+	
+
+func _destroy_audio_bus_and_stream_player(_id, _nickname):
+	var _name : String = "Player" + str(_id)
+	var _busId = AudioServer.get_bus_index(_name)
+	if _busId != -1:
+		AudioServer.remove_bus(AudioServer.get_bus_index(_name))
+	var audioStreamPlayer : AudioStreamPlayer
+	if not players_stream.has(_name):
+		if has_node(_name + "Output"):
+			audioStreamPlayer = get_node(_name + "Output")
+	else:
+		audioStreamPlayer = players_stream[_name]
+	if audioStreamPlayer:
+		audioStreamPlayer.queue_free()
+	players_stream[_name] = null
+	emit_signal("audio_buses_changed")
+
 remote func _receive_packet(id : int, opusPackets, format, mix_rate, stereo):
+	if not opusPackets:
+		return
 	var audioStream = AudioStreamSample.new()
 	emit_signal("packet_received", id)
 	audioStream.data = opusPackets
@@ -210,15 +283,17 @@ remote func _receive_packet(id : int, opusPackets, format, mix_rate, stereo):
 		time_since_last_packet_played[id] = 10.0
 		receive_buffer[id] = []
 	receive_buffer[id].push_back(audioStream)
-	opusPackets = null
+#	opusPackets = null
 	readMutex.unlock()
 	
-#func _process(delta: float) -> void:
+func _process(delta: float) -> void:
 #	_record()
+	if Network.is_online():
+		_send_record()
 #	time_elapsed += delta
 #	timeSinceLastPacketRecorded += delta
 #	_read_received_packets()
-#	pass
+	pass
 
 
 
